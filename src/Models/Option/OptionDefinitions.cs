@@ -699,4 +699,66 @@ public static class OptionDefinitions
             IsRequired = false
         };
     }
+
+    public static class ContainerService
+    {
+        public const string ClusterName = "cluster";
+        public const string LocationName = "location";
+        public const string DnsPrefixName = "dns-prefix";
+        public const string NodeCountName = "node-count";
+        public const string NodeVmSizeName = "node-vm-size";
+        public const string KubectlCommandName = "command";
+        public const string KubeConfigName = "kubeconfig";
+
+        public static readonly Option<string> Cluster = new(
+            $"--{ClusterName}",
+            "The name of the AKS cluster.")
+        {
+            IsRequired = true
+        };
+
+        public static readonly Option<string> Location = new(
+            $"--{LocationName}",
+            "Azure region for the AKS cluster (e.g., eastus).")
+        {
+            IsRequired = true
+        };
+
+        public static readonly Option<string> DnsPrefix = new(
+            $"--{DnsPrefixName}",
+            "DNS prefix for the AKS cluster.")
+        {
+            IsRequired = true
+        };
+
+        public static readonly Option<int> NodeCount = new(
+            $"--{NodeCountName}",
+            () => 1,
+            "Number of nodes in the default node pool.")
+        {
+            IsRequired = false
+        };
+
+        public static readonly Option<string> NodeVmSize = new(
+            $"--{NodeVmSizeName}",
+            () => "Standard_DS2_v2",
+            "VM size for the default node pool.")
+        {
+            IsRequired = false
+        };
+
+        public static readonly Option<string> KubectlCommand = new(
+            $"--{KubectlCommandName}",
+            "The kubectl command to execute (e.g., 'get pods').")
+        {
+            IsRequired = true
+        };
+
+        public static readonly Option<string> KubeConfig = new(
+            $"--{KubeConfigName}",
+            "Path to kubeconfig file. If not specified, cluster credentials will be retrieved.")
+        {
+            IsRequired = false
+        };
+    }
 }

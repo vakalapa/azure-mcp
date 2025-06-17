@@ -96,6 +96,7 @@ public class CommandFactory
         RegisterMcpServerCommands();
         RegisterServiceBusCommands();
         RegisterRedisCommands();
+        RegisterContainerServiceCommands();
     }
 
     private void RegisterBestPracticesCommand()
@@ -408,6 +409,21 @@ public class CommandFactory
         cluster.AddSubGroup(database);
 
         database.AddCommand("list", new Redis.ManagedRedis.DatabaseListCommand(GetLogger<Redis.ManagedRedis.DatabaseListCommand>()));
+    }
+    
+    private void RegisterContainerServiceCommands()
+    {
+        var cs = new CommandGroup("containerservice", "Azure Kubernetes Service operations - Commands for managing AKS clusters.");
+        _rootGroup.AddSubGroup(cs);
+
+        var managed = new CommandGroup("managedcluster", "AKS Managed Cluster operations");
+        cs.AddSubGroup(managed);
+
+        managed.AddCommand("list", new ContainerService.ManagedCluster.ClusterListCommand(GetLogger<ContainerService.ManagedCluster.ClusterListCommand>()));
+        managed.AddCommand("get", new ContainerService.ManagedCluster.ClusterGetCommand(GetLogger<ContainerService.ManagedCluster.ClusterGetCommand>()));
+        managed.AddCommand("create", new ContainerService.ManagedCluster.ClusterCreateCommand(GetLogger<ContainerService.ManagedCluster.ClusterCreateCommand>()));
+        managed.AddCommand("update", new ContainerService.ManagedCluster.ClusterUpdateCommand(GetLogger<ContainerService.ManagedCluster.ClusterUpdateCommand>()));
+        managed.AddCommand("kubectl", new ContainerService.ManagedCluster.ClusterKubectlCommand(GetLogger<ContainerService.ManagedCluster.ClusterKubectlCommand>()));
     }
 
     private void ConfigureCommands(CommandGroup group)
