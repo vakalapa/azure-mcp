@@ -699,4 +699,35 @@ public static class OptionDefinitions
             IsRequired = false
         };
     }
+
+    public static class Aks
+    {
+        public const string ClusterName = "cluster";
+        public const string KubeConfigName = "kubeconfig";
+        public const string CommandName = "command";
+
+        public static readonly Option<string> Cluster = new(
+            $"--{ClusterName}",
+            "The name of the Azure Kubernetes Service (AKS) cluster."
+        )
+        {
+            IsRequired = true
+        };
+
+        public static readonly Option<string> KubeConfig = new(
+            $"--{KubeConfigName}",
+            "Path to the kubeconfig file for the cluster."
+        )
+        {
+            IsRequired = true
+        };
+
+        public static readonly Option<string> Command = new(
+            $"--{CommandName}",
+            "kubectl command to execute."
+        )
+        {
+            IsRequired = true
+        };
+    }
 }

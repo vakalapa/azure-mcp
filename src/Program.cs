@@ -10,6 +10,7 @@ using AzureMcp.Services.Azure.Kusto;
 using AzureMcp.Services.Azure.Monitor;
 using AzureMcp.Services.Azure.Postgres;
 using AzureMcp.Services.Azure.Redis;
+using AzureMcp.Services.Azure.Aks;
 using AzureMcp.Services.Azure.ResourceGroup;
 using AzureMcp.Services.Azure.Search;
 using AzureMcp.Services.Azure.ServiceBus;
@@ -106,6 +107,7 @@ internal class Program
         services.AddSingleton<IKeyVaultService, KeyVaultService>();
         services.AddSingleton<IServiceBusService, ServiceBusService>();
         services.AddSingleton<IRedisService, RedisService>();
+        services.AddSingleton<IAksService, AksService>();
         services.AddSingleton<CommandFactory>();
     }
 }

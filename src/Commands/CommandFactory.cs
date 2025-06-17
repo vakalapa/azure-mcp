@@ -95,6 +95,7 @@ public class CommandFactory
         RegisterGroupCommands();
         RegisterMcpServerCommands();
         RegisterServiceBusCommands();
+        RegisterAksCommands();
         RegisterRedisCommands();
     }
 
@@ -380,6 +381,20 @@ public class CommandFactory
         serviceBus.AddSubGroup(topic);
 
         topic.AddSubGroup(subscription);
+    }
+
+    private void RegisterAksCommands()
+    {
+        var aks = new CommandGroup("aks", "Azure Kubernetes Service operations - Commands for managing AKS clusters.");
+        _rootGroup.AddSubGroup(aks);
+
+        var cluster = new CommandGroup("cluster", "AKS cluster operations - Commands for listing and getting AKS clusters.");
+        aks.AddSubGroup(cluster);
+
+        cluster.AddCommand("list", new Aks.ClusterListCommand(GetLogger<Aks.ClusterListCommand>()));
+        cluster.AddCommand("get", new Aks.ClusterGetCommand(GetLogger<Aks.ClusterGetCommand>()));
+
+        aks.AddCommand("kubectl", new Aks.KubectlCommand(GetLogger<Aks.KubectlCommand>()));
     }
 
     private void RegisterRedisCommands()
