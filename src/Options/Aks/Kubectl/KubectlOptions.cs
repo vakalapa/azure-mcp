@@ -11,4 +11,7 @@ public class KubectlOptions : GlobalOptions
 
     [JsonPropertyName(OptionDefinitions.Aks.CommandName)]
     public string? Command { get; set; }
+
+    [JsonPropertyName(OptionDefinitions.Aks.AutoInstallKubectlName)]
+    public bool AutoInstallKubectl { get; set; } = true;
 }

@@ -698,13 +698,12 @@ public static class OptionDefinitions
         {
             IsRequired = false
         };
-    }
-
-    public static class Aks
+    }    public static class Aks
     {
         public const string ClusterName = "cluster";
         public const string KubeConfigName = "kubeconfig";
         public const string CommandName = "command";
+        public const string AutoInstallKubectlName = "auto-install-kubectl";
 
         public static readonly Option<string> Cluster = new(
             $"--{ClusterName}",
@@ -728,6 +727,15 @@ public static class OptionDefinitions
         )
         {
             IsRequired = true
+        };
+
+        public static readonly Option<bool> AutoInstallKubectl = new(
+            $"--{AutoInstallKubectlName}",
+            () => true,
+            "Automatically install kubectl if not found on the system."
+        )
+        {
+            IsRequired = false
         };
     }
 }

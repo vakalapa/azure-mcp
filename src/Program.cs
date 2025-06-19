@@ -20,6 +20,7 @@ using AzureMcp.Services.Azure.Tenant;
 using AzureMcp.Services.Caching;
 using AzureMcp.Services.Interfaces;
 using AzureMcp.Services.ProcessExecution;
+using AzureMcp.Services.ToolInstallation;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -85,14 +86,13 @@ internal class Program
     private static void WriteResponse(CommandResponse response)
     {
         Console.WriteLine(JsonSerializer.Serialize(response, ModelsJsonContext.Default.CommandResponse));
-    }
-
-    internal static void ConfigureServices(IServiceCollection services)
+    }    internal static void ConfigureServices(IServiceCollection services)
     {
         services.ConfigureOpenTelemetry();
         services.AddMemoryCache();
         services.AddSingleton<ICacheService, CacheService>();
         services.AddSingleton<IExternalProcessService, ExternalProcessService>();
+        services.AddSingleton<IToolInstallationService, ToolInstallationService>();
         services.AddSingleton<ISubscriptionService, SubscriptionService>();
         services.AddSingleton<ITenantService, TenantService>();
         services.AddSingleton<ICosmosService, CosmosService>();

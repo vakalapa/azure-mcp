@@ -4,8 +4,4 @@ using AzureMcp.Options;
 
 namespace AzureMcp.Options.Aks;
 
-public class BaseAksOptions : SubscriptionOptions
-{
-    [JsonPropertyName(OptionDefinitions.Common.ResourceGroupName)]
-    public new string? ResourceGroup { get; set; }
-}
+public class BaseAksOptions : SubscriptionOptions;
