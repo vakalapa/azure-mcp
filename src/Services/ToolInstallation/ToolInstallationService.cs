@@ -17,8 +17,9 @@ public class ToolInstallationService(ILogger<ToolInstallationService> logger) : 
 
     public async Task<string?> FindKubectlAsync()
     {
+        await Task.CompletedTask; // Make method properly async
         var kubectlName = GetKubectlExecutableName();
-        
+
         // Check PATH first
         var pathEnv = Environment.GetEnvironmentVariable("PATH");
         if (!string.IsNullOrEmpty(pathEnv))
@@ -48,7 +49,8 @@ public class ToolInstallationService(ILogger<ToolInstallationService> logger) : 
 
         _logger.LogDebug("kubectl not found in PATH or common locations");
         return null;
-    }    public async Task<string?> InstallKubectlAsync()
+    }
+    public async Task<string?> InstallKubectlAsync()
     {
         try
         {
@@ -58,7 +60,7 @@ public class ToolInstallationService(ILogger<ToolInstallationService> logger) : 
             Directory.CreateDirectory(installDir);
 
             var kubectlPath = Path.Combine(installDir, GetKubectlExecutableName());
-            
+
             // Skip if already exists
             if (File.Exists(kubectlPath))
             {
@@ -105,7 +107,7 @@ public class ToolInstallationService(ILogger<ToolInstallationService> logger) : 
     public async Task<string?> EnsureKubectlAsync(bool autoInstall = false)
     {
         var kubectlPath = await FindKubectlAsync();
-        
+
         if (kubectlPath != null)
         {
             return kubectlPath;
@@ -146,7 +148,8 @@ public class ToolInstallationService(ILogger<ToolInstallationService> logger) : 
                 Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".kube")
             ];
         }
-    }    private static string GetKubectlInstallDirectory()
+    }
+    private static string GetKubectlInstallDirectory()
     {
         if (OperatingSystem.IsWindows())
         {
@@ -197,7 +200,8 @@ public class ToolInstallationService(ILogger<ToolInstallationService> logger) : 
         };
 
         return (os, arch);
-    }    private static void SetExecutablePermissions(string filePath)
+    }
+    private static void SetExecutablePermissions(string filePath)
     {
         try
         {
@@ -212,7 +216,7 @@ public class ToolInstallationService(ILogger<ToolInstallationService> logger) : 
                     CreateNoWindow = true
                 }
             };
-            
+
             process.Start();
             process.WaitForExit();
         }
@@ -228,7 +232,7 @@ public class ToolInstallationService(ILogger<ToolInstallationService> logger) : 
         try
         {
             _logger.LogDebug("Validating kubectl installation at: {KubectlPath}", kubectlPath);
-            
+
             var process = new System.Diagnostics.Process
             {
                 StartInfo = new System.Diagnostics.ProcessStartInfo
@@ -243,12 +247,12 @@ public class ToolInstallationService(ILogger<ToolInstallationService> logger) : 
             };
 
             process.Start();
-            
+
             var outputTask = process.StandardOutput.ReadToEndAsync();
             var errorTask = process.StandardError.ReadToEndAsync();
-            
+
             await process.WaitForExitAsync();
-            
+
             var output = await outputTask;
             var error = await errorTask;
 

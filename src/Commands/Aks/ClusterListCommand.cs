@@ -44,7 +44,7 @@ public sealed class ClusterListCommand(ILogger<ClusterListCommand> logger) : Bas
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error listing AKS clusters.");
-            HandleException(context.Response, ex);
+            HandleException(context, ex);
         }
 
         return context.Response;

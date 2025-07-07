@@ -49,7 +49,7 @@ public sealed class ClusterGetCommand(ILogger<ClusterGetCommand> logger) : BaseA
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error retrieving AKS cluster.");
-            HandleException(context.Response, ex);
+            HandleException(context, ex);
         }
 
         return context.Response;

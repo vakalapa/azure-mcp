@@ -2,6 +2,7 @@ using AzureMcp.Models.Command;
 using AzureMcp.Models.Option;
 using AzureMcp.Options.Aks.Kubectl;
 using AzureMcp.Services.Interfaces;
+using AzureMcp.Services.ProcessExecution;
 using Microsoft.Extensions.Logging;
 
 namespace AzureMcp.Commands.Aks;
@@ -10,7 +11,7 @@ public sealed class KubectlCommand(ILogger<KubectlCommand> logger, int processTi
 {
     private const string CommandTitle = "kubectl Command";
     private readonly ILogger<KubectlCommand> _logger = logger;
-    private readonly int _timeoutSeconds = processTimeoutSeconds;    private readonly Option<string> _commandOption = OptionDefinitions.Aks.Command;
+    private readonly int _timeoutSeconds = processTimeoutSeconds; private readonly Option<string> _commandOption = OptionDefinitions.Aks.Command;
     private readonly Option<string> _kubeConfigOption = OptionDefinitions.Aks.KubeConfig;
     private readonly Option<bool> _autoInstallKubectlOption = OptionDefinitions.Aks.AutoInstallKubectl;
 
@@ -18,13 +19,14 @@ public sealed class KubectlCommand(ILogger<KubectlCommand> logger, int processTi
 
     public override string Description => "Execute kubectl commands against a cluster.";
 
-    public override string Title => CommandTitle;    protected override void RegisterOptions(Command command)
+    public override string Title => CommandTitle; protected override void RegisterOptions(Command command)
     {
         base.RegisterOptions(command);
         command.AddOption(_commandOption);
         command.AddOption(_kubeConfigOption);
         command.AddOption(_autoInstallKubectlOption);
-    }    protected override KubectlOptions BindOptions(ParseResult parseResult)
+    }
+    protected override KubectlOptions BindOptions(ParseResult parseResult)
     {
         var options = base.BindOptions(parseResult);
         options.Command = parseResult.GetValueForOption(_commandOption);
@@ -45,12 +47,13 @@ public sealed class KubectlCommand(ILogger<KubectlCommand> logger, int processTi
             }
 
             ArgumentNullException.ThrowIfNull(options.Command);
-            ArgumentNullException.ThrowIfNull(options.KubeConfig);            var processService = context.GetService<IExternalProcessService>();
+            ArgumentNullException.ThrowIfNull(options.KubeConfig);
+            var processService = context.GetService<IExternalProcessService>();
             var toolInstallationService = context.GetService<IToolInstallationService>();
 
             // First, check if kubectl is already available
             var existingKubectlPath = await toolInstallationService.FindKubectlAsync();
-            
+
             string kubectlPath;
             if (existingKubectlPath != null)
             {
@@ -60,15 +63,16 @@ public sealed class KubectlCommand(ILogger<KubectlCommand> logger, int processTi
             else if (options.AutoInstallKubectl)
             {
                 _logger.LogInformation("kubectl not found. Installing kubectl automatically...");
-                kubectlPath = await toolInstallationService.InstallKubectlAsync();
-                
-                if (kubectlPath == null)
+                var installedPath = await toolInstallationService.InstallKubectlAsync();
+
+                if (installedPath == null)
                 {
                     context.Response.Status = 404;
                     context.Response.Message = CreateKubectlNotFoundMessage(true);
                     return context.Response;
                 }
-                
+
+                kubectlPath = installedPath;
                 _logger.LogInformation("kubectl installed and ready to use.");
             }
             else
@@ -80,7 +84,7 @@ public sealed class KubectlCommand(ILogger<KubectlCommand> logger, int processTi
 
             var args = $"--kubeconfig {options.KubeConfig} {options.Command}";
             var result = await processService.ExecuteAsync(kubectlPath, args, _timeoutSeconds);
-            
+
             if (result.ExitCode != 0)
             {
                 context.Response.Status = 500;
@@ -93,13 +97,14 @@ public sealed class KubectlCommand(ILogger<KubectlCommand> logger, int processTi
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error executing kubectl command.");
-            HandleException(context.Response, ex);
+            HandleException(context, ex);
         }
         return context.Response;
-    }    private static string CreateKubectlNotFoundMessage(bool autoInstallAttempted)
+    }
+    private static string CreateKubectlNotFoundMessage(bool autoInstallAttempted)
     {
         var platform = GetPlatformInstallInstructions();
-        
+
         if (autoInstallAttempted)
         {
             return $"""
