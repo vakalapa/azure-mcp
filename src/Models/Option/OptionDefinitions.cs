@@ -162,7 +162,8 @@ public static partial class OptionDefinitions
         {
             IsRequired = true,
         };
-    }    public static class Aks
+    }
+    public static class Aks
     {
         public const string ClusterName = "cluster";
         public const string KubeConfigName = "kubeconfig";

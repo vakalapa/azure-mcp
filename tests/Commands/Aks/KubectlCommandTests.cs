@@ -3,6 +3,7 @@ using System.Text.Json;
 using AzureMcp.Commands.Aks;
 using AzureMcp.Models.Command;
 using AzureMcp.Services.Interfaces;
+using AzureMcp.Services.ProcessExecution;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
@@ -14,16 +15,19 @@ public class KubectlCommandTests
 {
     private readonly IServiceProvider _serviceProvider;
     private readonly IExternalProcessService _processService;
+    private readonly IToolInstallationService _toolInstallationService;
     private readonly ILogger<KubectlCommand> _logger;
     private readonly KubectlCommand _command;
 
     public KubectlCommandTests()
     {
         _processService = Substitute.For<IExternalProcessService>();
+        _toolInstallationService = Substitute.For<IToolInstallationService>();
         _logger = Substitute.For<ILogger<KubectlCommand>>();
 
         var collection = new ServiceCollection();
         collection.AddSingleton(_processService);
+        collection.AddSingleton(_toolInstallationService);
         _serviceProvider = collection.BuildServiceProvider();
 
         _command = new(_logger);
@@ -48,9 +52,10 @@ public class KubectlCommandTests
         if (shouldSucceed)
         {
             var mockResult = new ProcessResult(0, "{\"items\":[]}", "", "get pods");
-            _processService.ExecuteAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<int>(), Arg.Any<IEnumerable<string>>())
+            _toolInstallationService.FindKubectlAsync().Returns("kubectl");
+            _processService.ExecuteAsync(Arg.Any<string>(), Arg.Any<string>(), 300)
                 .Returns(mockResult);
-            _processService.ParseJsonOutput(Arg.Any<ProcessResult>())
+            _processService.ParseJsonOutput(mockResult)
                 .Returns(JsonDocument.Parse("{}").RootElement);
         }
 
@@ -73,7 +78,8 @@ public class KubectlCommandTests
     public async Task ExecuteAsync_HandlesProcessErrors()
     {
         // Arrange
-        _processService.ExecuteAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<int>(), Arg.Any<IEnumerable<string>>())
+        _toolInstallationService.FindKubectlAsync().Returns("kubectl");
+        _processService.ExecuteAsync(Arg.Any<string>(), Arg.Any<string>(), 300)
             .Returns(Task.FromException<ProcessResult>(new Exception("Test error")));
 
         var context = new CommandContext(_serviceProvider);

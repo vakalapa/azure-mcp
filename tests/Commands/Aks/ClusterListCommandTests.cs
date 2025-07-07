@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Parsing;
 using AzureMcp.Commands.Aks;
@@ -9,7 +10,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using Xunit;
-using System.Collections.Generic;
 
 namespace AzureMcp.Tests.Commands.Aks;
 

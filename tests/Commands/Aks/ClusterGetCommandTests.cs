@@ -1,9 +1,10 @@
 using System.CommandLine.Parsing;
+using Azure.ResourceManager.ContainerService;
+using Azure.ResourceManager.ContainerService.Models;
 using AzureMcp.Commands.Aks;
 using AzureMcp.Models.Command;
 using AzureMcp.Options.Aks.Cluster;
 using AzureMcp.Services.Interfaces;
-using Azure.ResourceManager.ContainerService.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
@@ -48,13 +49,15 @@ public class ClusterGetCommandTests
         // Arrange
         if (shouldSucceed)
         {
-            var mockClusterData = Substitute.For<ContainerServiceManagedClusterData>();
+            // Create a mock cluster data with required location parameter
+            var mockClusterData = new ContainerServiceManagedClusterData(Azure.Core.AzureLocation.EastUS);
             _service.GetCluster(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<AzureMcp.Options.RetryPolicyOptions>())
                 .Returns(mockClusterData);
         }
 
         var context = new CommandContext(_serviceProvider);
-        var parseResult = _command.GetCommand().Parse(args);
+        var parser = new Parser(_command.GetCommand());
+        var parseResult = parser.Parse(args);
 
         // Act
         var response = await _command.ExecuteAsync(context, parseResult);
@@ -80,7 +83,8 @@ public class ClusterGetCommandTests
             .Returns(Task.FromException<ContainerServiceManagedClusterData>(new Exception("Test error")));
 
         var context = new CommandContext(_serviceProvider);
-        var parseResult = _command.GetCommand().Parse("--subscription sub --resource-group rg --cluster test-cluster");
+        var parser = new Parser(_command.GetCommand());
+        var parseResult = parser.Parse("--subscription sub --resource-group rg --cluster test-cluster");
 
         // Act
         var response = await _command.ExecuteAsync(context, parseResult);

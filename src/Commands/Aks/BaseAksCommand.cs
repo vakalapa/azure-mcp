@@ -12,20 +12,24 @@ public abstract class BaseAksCommand<
     protected readonly Option<string> _clusterOption = OptionDefinitions.Aks.Cluster;
 
     // Allow derived classes to specify if resource group is required
-    protected virtual bool RequiresResourceGroup => true;    protected override void RegisterOptions(Command command)
+    protected virtual bool RequiresResourceGroup => true;
+
+    protected override void RegisterOptions(Command command)
     {
         base.RegisterOptions(command);
 
         // Add resource group option and set if it's required
         _resourceGroupOption.IsRequired = RequiresResourceGroup;
         command.AddOption(_resourceGroupOption);
-        
+
         // Only add cluster option for commands that need it (BaseClusterOptions or derived)
         if (typeof(TOptions).IsAssignableTo(typeof(Options.Aks.Cluster.BaseClusterOptions)))
         {
             command.AddOption(_clusterOption);
         }
-    }    protected override TOptions BindOptions(ParseResult parseResult)
+    }
+
+    protected override TOptions BindOptions(ParseResult parseResult)
     {
         var options = base.BindOptions(parseResult);
 
